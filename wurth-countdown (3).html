@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en-ZA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Würth SA — Year-End Shutdown Countdown</title>
+  <meta name="description" content="Working-time countdown to the Würth SA year-end shutdown: 15 December 2026, 16:30 SAST.">
+  <style>
+:root {
+  --red: #cc0000;
+  --black: #111111;
+  --ink: #1d1d1f;
+  --muted: #6b6f76;
+  --grey-bg: #f2f3f5;
+  --grey-line: #e1e3e7;
+  --white: #ffffff;
+  --radius: 18px;
+  --shadow: 0 1px 2px rgba(17, 17, 17, 0.06), 0 10px 28px rgba(17, 17, 17, 0.08);
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; height: 100%; }
+
+/* One-screen layout: header / countdown / info / footer share the viewport height. */
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--grey-bg);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.topbar { height: 8px; background: var(--red); flex: none; }
+
+.page {
+  flex: 1;
+  min-height: 0;
+  width: min(1200px, 100% - 32px);
+  margin: 0 auto;
+  padding: clamp(8px, 2vh, 28px) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: clamp(8px, 2vh, 24px);
+}
+
+/* ── Header ── */
+.hero { display: flex; flex-direction: column; align-items: center; }
+
+.logo {
+  display: block;
+  height: clamp(32px, 8vh, 84px);
+  width: auto;
+  max-width: 60vw;
+  margin-bottom: clamp(6px, 1.4vh, 14px);
+}
+
+.eyebrow {
+  margin: 0 0 clamp(4px, 1vh, 8px);
+  color: var(--red);
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: clamp(0.75rem, 2vh, 1.1rem);
+}
+.eyebrow[hidden] { display: none; }
+
+h1 {
+  margin: 0;
+  color: var(--black);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-size: clamp(1.4rem, min(4.6vw, 6.5vh), 3.6rem);
+}
+
+.subtitle {
+  margin: clamp(4px, 1vh, 10px) 0 0;
+  color: var(--muted);
+  font-size: clamp(0.9rem, min(2vw, 2.8vh), 1.5rem);
+  font-weight: 500;
+}
+
+/* ── Countdown cards ── */
+.countdown {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(8px, 1.8vw, 26px);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: clamp(10px, 3.2vh, 40px) 6px clamp(8px, 2.4vh, 30px);
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-top: 6px solid var(--red);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(17, 17, 17, 0.06), 0 16px 36px rgba(17, 17, 17, 0.12);
+}
+
+.num {
+  font-size: clamp(2.2rem, min(10vw, 19vh), 10rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--black);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.label {
+  color: var(--red);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: clamp(0.6rem, min(1.4vw, 2.2vh), 1.05rem);
+}
+
+/* ── Shutdown message ── */
+.shutdown {
+  width: 100%;
+  padding: clamp(24px, 8vh, 90px) 20px;
+  background: var(--red);
+  color: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: clamp(1.5rem, min(4.5vw, 8vh), 3.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+.shutdown p { margin: 0; }
+.shutdown[hidden] { display: none; }
+
+/* ── Status pill ── */
+.status {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--white);
+  border: 1px solid var(--grey-line);
+  font-weight: 600;
+  font-size: clamp(0.75rem, min(1.5vw, 2.2vh), 1.05rem);
+}
+.status::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--red);
+}
+.status.paused::before { background: #9aa0a8; }
+.status:empty { display: none; }
+
+/* ── Info row ── */
+.meta {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(8px, 1.8vw, 24px);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: clamp(8px, 1.6vh, 16px) 10px;
+  background: var(--white);
+  border: 1px solid var(--grey-line);
+  border-radius: 12px;
+}
+
+.meta-label {
+  color: var(--muted);
+  font-size: clamp(0.6rem, min(1.1vw, 1.8vh), 0.85rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.meta-value {
+  color: var(--black);
+  font-weight: 700;
+  font-size: clamp(0.8rem, min(1.7vw, 2.6vh), 1.3rem);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Footer ── */
+.footer {
+  flex: none;
+  padding: clamp(8px, 1.6vh, 16px) 16px;
+  background: var(--black);
+  color: #c9cbd0;
+  text-align: center;
+  font-size: clamp(0.7rem, 1.8vh, 0.85rem);
+  letter-spacing: 0.04em;
+}
+.footer small {
+  display: block;
+  margin-top: 2px;
+  color: #8e9199;
+  font-size: 0.9em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .countdown { grid-template-columns: repeat(2, 1fr); }
+  .meta { grid-template-columns: 1fr; gap: 6px; }
+  .meta-item { flex-direction: row; justify-content: space-between; align-items: center; padding: 8px 12px; }
+  .num { font-size: clamp(2.4rem, min(16vw, 12vh), 5rem); }
+}
+
+/* Large office displays */
+@media (min-width: 1600px) {
+  .page { width: min(1700px, 100% - 64px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+</style>
+</head>
+<body>
+  <div class="topbar" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="hero">
+      <!-- Drop the official logo next to this file as wurth-logo.svg (or .png, edit the src). -->
+      <img class="logo" src="wurth-logo.svg" alt="Würth"
+           onerror="this.remove();document.getElementById('eyebrow').hidden=false">
+      <p class="eyebrow" id="eyebrow" hidden>Würth SA</p>
+      <h1>Year-End Shutdown Countdown</h1>
+      <p class="subtitle">Every Working Second Counts.</p>
+    </header>
+
+    <section id="countdown" class="countdown" role="timer" aria-label="Working time remaining until shutdown">
+      <div class="card">
+        <span class="num" id="d">--</span>
+        <span class="label">Days</span>
+      </div>
+      <div class="card">
+        <span class="num" id="h">--</span>
+        <span class="label">Hours</span>
+      </div>
+      <div class="card">
+        <span class="num" id="m">--</span>
+        <span class="label">Minutes</span>
+      </div>
+      <div class="card">
+        <span class="num" id="s">--</span>
+        <span class="label">Seconds</span>
+      </div>
+    </section>
+
+    <section id="shutdown" class="shutdown" hidden>
+      <p>Company Shutdown Has Started! Enjoy the Festive Season.</p>
+    </section>
+
+    <p id="status" class="status" aria-live="polite"></p>
+
+    <section class="meta">
+      <div class="meta-item">
+        <span class="meta-label">Current time in South Africa</span>
+        <span class="meta-value" id="now">—</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Shutdown</span>
+        <span class="meta-value" id="target">Tuesday, 15 December 2026, 16:30 SAST</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Working days left</span>
+        <span class="meta-value" id="workdays">—</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    Würth South Africa | Year-End 2026
+    <small>Weekends and official South African public holidays are not counted.</small>
+  </footer>
+
+  <script>
+/**
+ * Würth SA — Year-End Shutdown Countdown: core logic (no DOM, fully testable).
+ *
+ * Works in the browser (exposes `window.Countdown`) and in Node (`require`).
+ *
+ * Time model
+ * ----------
+ * South Africa (Africa/Johannesburg) is UTC+2 all year and has no daylight
+ * saving, so every SAST calendar day is exactly 24 hours long. We therefore do
+ * all calendar maths on epoch milliseconds shifted by a fixed +2h offset.
+ *
+ * "Working time" model
+ * --------------------
+ * Time only counts on working days (Mon–Fri that are not public holidays).
+ * Within a working day, the counted window is WORK_START → WORK_END (minutes
+ * since midnight SAST), 08:00 → 16:30 by default. The clock is frozen outside
+ * those hours, on weekends and on public holidays. One "Day" on the display is
+ * one counted working day (8h 30m).
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.Countdown = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ───────────────────────── Configuration ─────────────────────────
+  const TIME_ZONE = 'Africa/Johannesburg';
+  const SAST_OFFSET_MS = 2 * 60 * 60 * 1000;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const MIN_MS = 60 * 1000;
+
+  /** Shutdown moment: 15 Dec 2026, 16:30 SAST (= 14:30 UTC). */
+  const TARGET_MS = Date.UTC(2026, 11, 15, 16, 30, 0) - SAST_OFFSET_MS;
+
+  /**
+   * Counted window inside each working day (minutes after 00:00 SAST).
+   * 08:00 → 16:30. Set 0 and 24 * 60 to count the full day instead.
+   */
+  const WORK_START_MIN = 8 * 60;
+  const WORK_END_MIN = 16 * 60 + 30;
+
+  /**
+   * Official South African public holidays, 2026 (Public Holidays Act, 1994).
+   * Sources: gov.za holiday list + presidential proclamation under s2A for
+   * the 2026 local government election day.
+   */
+  const STATUTORY_2026 = [
+    ['2026-01-01', "New Year's Day"],
+    ['2026-03-21', 'Human Rights Day'], // Saturday — no substitute day
+    ['2026-04-03', 'Good Friday'],
+    ['2026-04-06', 'Family Day'],
+    ['2026-04-27', 'Freedom Day'],
+    ['2026-05-01', "Workers' Day"],
+    ['2026-06-16', 'Youth Day'],
+    ['2026-08-09', "National Women's Day"], // Sunday → Monday 10 Aug observed
+    ['2026-09-24', 'Heritage Day'],
+    ['2026-12-16', 'Day of Reconciliation'],
+    ['2026-12-25', 'Christmas Day'],
+    ['2026-12-26', 'Day of Goodwill'], // Saturday — no substitute day
+  ];
+
+  /** One-off holidays declared by the President (Gazette, Sept 2026). */
+  const SPECIAL_2026 = [['2026-11-04', 'Local Government Election Day']];
+
+  // ───────────────────────── Date helpers ─────────────────────────
+  const pad = (n) => String(n).padStart(2, '0');
+
+  /** Midnight (00:00 SAST) at or before `ms`, as epoch ms. */
+  function sastMidnight(ms) {
+    return Math.floor((ms + SAST_OFFSET_MS) / DAY_MS) * DAY_MS - SAST_OFFSET_MS;
+  }
+
+  /** 'YYYY-MM-DD' (SAST) for the day starting at SAST midnight `midnightMs`. */
+  function dateKey(midnightMs) {
+    const d = new Date(midnightMs + SAST_OFFSET_MS);
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  }
+
+  /** Day of week (0 = Sunday … 6 = Saturday) for the SAST day at `midnightMs`. */
+  function dayOfWeek(midnightMs) {
+    return new Date(midnightMs + SAST_OFFSET_MS).getUTCDay();
+  }
+
+  /** Parse 'YYYY-MM-DD' to SAST midnight epoch ms. */
+  function parseKey(key) {
+    const [y, m, d] = key.split('-').map(Number);
+    return Date.UTC(y, m - 1, d) - SAST_OFFSET_MS;
+  }
+
+  // ───────────────────────── Holidays ─────────────────────────
+  /**
+   * Build a { 'YYYY-MM-DD': 'Name' } map. Applies the Public Holidays Act rule:
+   * a holiday that falls on a Sunday is observed on the following Monday.
+   * (Saturday holidays are NOT moved.)
+   */
+  function buildHolidayMap(statutory, special) {
+    const map = {};
+    for (const [key, name] of statutory) {
+      map[key] = name;
+      const mid = parseKey(key);
+      if (dayOfWeek(mid) === 0) {
+        const monday = dateKey(mid + DAY_MS);
+        if (!map[monday]) map[monday] = `${name} (observed)`;
+      }
+    }
+    for (const [key, name] of special) map[key] = name;
+    return map;
+  }
+
+  const HOLIDAYS = buildHolidayMap(STATUTORY_2026, SPECIAL_2026);
+
+  const DEFAULTS = Object.freeze({
+    holidays: HOLIDAYS,
+    workStartMin: WORK_START_MIN,
+    workEndMin: WORK_END_MIN,
+  });
+
+  // ───────────────────────── Working-time maths ─────────────────────────
+  /** Classify the SAST day starting at `midnightMs`. */
+  function classifyDay(midnightMs, opts = DEFAULTS) {
+    const dow = dayOfWeek(midnightMs);
+    if (dow === 0 || dow === 6) return { working: false, reason: 'weekend' };
+    const name = opts.holidays[dateKey(midnightMs)];
+    if (name) return { working: false, reason: 'holiday', holidayName: name };
+    return { working: true };
+  }
+
+  /** Total working milliseconds in (fromMs, toMs]. */
+  function workingMsBetween(fromMs, toMs, opts = DEFAULTS) {
+    if (toMs <= fromMs) return 0;
+    let total = 0;
+    for (let day = sastMidnight(fromMs); day < toMs; day += DAY_MS) {
+      if (!classifyDay(day, opts).working) continue;
+      const lo = Math.max(fromMs, day + opts.workStartMin * MIN_MS);
+      const hi = Math.min(toMs, day + opts.workEndMin * MIN_MS);
+      if (hi > lo) total += hi - lo;
+    }
+    return total;
+  }
+
+  /** Length of one counted working day, in ms (used for the "Days" figure). */
+  function workdayLengthMs(opts = DEFAULTS) {
+    return (opts.workEndMin - opts.workStartMin) * MIN_MS;
+  }
+
+  /** Split remaining working ms into Days / Hours / Minutes / Seconds. */
+  function breakdown(remainingMs, opts = DEFAULTS) {
+    const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
+    const daySeconds = workdayLengthMs(opts) / 1000;
+    const days = Math.floor(totalSeconds / daySeconds);
+    let rest = totalSeconds - days * daySeconds;
+    const hours = Math.floor(rest / 3600);
+    rest -= hours * 3600;
+    const minutes = Math.floor(rest / 60);
+    const seconds = rest - minutes * 60;
+    return { days, hours, minutes, seconds, totalSeconds };
+  }
+
+  /** What is the clock doing right now? (running / paused and why) */
+  function statusAt(nowMs, opts = DEFAULTS) {
+    const day = sastMidnight(nowMs);
+    const info = classifyDay(day, opts);
+    if (!info.working) return { running: false, ...info };
+    const offset = nowMs - day;
+    if (offset < opts.workStartMin * MIN_MS) return { running: false, reason: 'before-hours' };
+    if (offset >= opts.workEndMin * MIN_MS) return { running: false, reason: 'after-hours' };
+    return { running: true, reason: 'working' };
+  }
+
+  /**
+   * Last moment at or before `targetMs` that still counts as working time.
+   * Equals the target itself on a normal working day; if the target falls on
+   * a weekend/holiday, it is the end of the previous working period — which is
+   * exactly when the countdown reaches zero.
+   */
+  function effectiveTargetMs(targetMs, opts = DEFAULTS) {
+    let day = sastMidnight(targetMs);
+    // Walk back until we find a working day with counted time before target.
+    for (let i = 0; i < 400; i++, day -= DAY_MS) {
+      if (!classifyDay(day, opts).working) continue;
+      const hi = Math.min(targetMs, day + opts.workEndMin * MIN_MS);
+      if (hi > day + opts.workStartMin * MIN_MS) return hi;
+    }
+    return targetMs;
+  }
+
+  /** Everything the UI needs for a given instant. */
+  function compute(nowMs, targetMs = TARGET_MS, opts = DEFAULTS) {
+    const remainingMs = workingMsBetween(nowMs, targetMs, opts);
+    const done = remainingMs <= 0;
+    const targetDay = classifyDay(sastMidnight(targetMs), opts);
+    return {
+      done,
+      remainingMs,
+      parts: breakdown(remainingMs, opts),
+      status: statusAt(nowMs, opts),
+      targetIsWorkingDay: targetDay.working,
+      targetDayInfo: targetDay,
+      effectiveTargetMs: effectiveTargetMs(targetMs, opts),
+    };
+  }
+
+  return {
+    TIME_ZONE,
+    TARGET_MS,
+    SAST_OFFSET_MS,
+    DEFAULTS,
+    HOLIDAYS,
+    buildHolidayMap,
+    classifyDay,
+    workingMsBetween,
+    breakdown,
+    statusAt,
+    effectiveTargetMs,
+    compute,
+    sastMidnight,
+    dateKey,
+  };
+});
+
+</script>
+  <script>
+/**
+ * UI layer: reads the clock, asks Countdown.compute() for the numbers,
+ * and paints them. All calendar logic lives in countdown.js.
+ *
+ * Testing aid: open the page with ?now=2026-12-15T15:59:50+02:00 to simulate
+ * a different "current" time (the simulated clock keeps ticking forward).
+ */
+(function () {
+  'use strict';
+
+  const C = window.Countdown;
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(2, '0');
+
+  // Optional ?now=... override (ISO 8601 with offset), for demos and testing.
+  const params = new URLSearchParams(window.location.search);
+  const override = params.get('now') ? Date.parse(params.get('now')) : NaN;
+  const clockOffset = Number.isNaN(override) ? 0 : override - Date.now();
+  const nowMs = () => Date.now() + clockOffset;
+
+  const nowFormat = new Intl.DateTimeFormat('en-ZA', {
+    timeZone: C.TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  const targetFormat = new Intl.DateTimeFormat('en-ZA', {
+    timeZone: C.TIME_ZONE,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const el = {
+    d: $('d'), h: $('h'), m: $('m'), s: $('s'),
+    countdown: $('countdown'), shutdown: $('shutdown'),
+    status: $('status'), now: $('now'), target: $('target'),
+    workdays: $('workdays'),
+  };
+
+  el.target.textContent = `${targetFormat.format(C.TARGET_MS)} SAST`;
+
+  function statusText(status) {
+    switch (status.reason) {
+      case 'working': return 'Working time — countdown running';
+      case 'weekend': return 'Weekend — countdown paused';
+      case 'holiday': return `Public holiday (${status.holidayName}) — countdown paused`;
+      case 'before-hours': return 'Outside working hours — countdown paused';
+      case 'after-hours': return 'Outside working hours — countdown paused';
+      default: return '';
+    }
+  }
+
+  /** Whole working days still ahead (today excluded), up to the target. */
+  function workingDaysLeft(now, target) {
+    let n = 0;
+    const DAY = 24 * 60 * 60 * 1000;
+    for (let day = C.sastMidnight(now) + DAY; day <= target; day += DAY) {
+      if (C.classifyDay(day).working) n++;
+    }
+    return n;
+  }
+
+  function render() {
+    const now = nowMs();
+    const result = C.compute(now);
+
+    el.now.textContent = nowFormat.format(now).replace(' at ', ', ');
+
+    if (result.done) {
+      el.countdown.hidden = true;
+      el.shutdown.hidden = false;
+      el.status.textContent = '';
+      el.status.classList.remove('paused');
+      el.workdays.textContent = '0';
+      document.title = 'Company Shutdown Has Started! — Würth SA';
+      return;
+    }
+
+    el.countdown.hidden = false;
+    el.shutdown.hidden = true;
+
+    const { days, hours, minutes, seconds } = result.parts;
+    el.d.textContent = pad(days);
+    el.h.textContent = pad(hours);
+    el.m.textContent = pad(minutes);
+    el.s.textContent = pad(seconds);
+
+    let text = statusText(result.status);
+    if (!result.targetIsWorkingDay) {
+      text += ' · Shutdown date is a non-working day; countdown ends at the last working moment before it';
+    }
+    el.status.textContent = text;
+    el.status.classList.toggle('paused', !result.status.running);
+
+    el.workdays.textContent = String(workingDaysLeft(now, C.TARGET_MS));
+    document.title = `${pad(days)}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)} — Würth SA Year-End Shutdown`;
+  }
+
+  /** Re-render just after each whole second so the display never drifts. */
+  function loop() {
+    render();
+    const wait = 1000 - (nowMs() % 1000) + 5;
+    setTimeout(loop, wait);
+  }
+
+  loop();
+})();
+
+</script>
+</body>
+</html>
